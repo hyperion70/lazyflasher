@@ -17,7 +17,7 @@ find -type f \( \
 	-name "ueventd.*" -o -name "sepolicy" -o -name "sepolicy_version" \
 	\) -exec chmod 0644 {} \;
 
-print "Copying new files to the ramdisk..."
+print "Копирую новые файлы в ramdisk..."
 cp -rd ./. "$ramdisk/"
 
 exit 0

@@ -1,4 +1,5 @@
 # Kernel Flasher by jcadduono
+https://forum.xda-developers.com/android/software-hacking/zip-lazyflasher-tool-flashing-custom-t3549210
 
 ## To use:
 

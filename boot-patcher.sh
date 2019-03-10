@@ -51,7 +51,7 @@ find_boot() {
 		else
 			return 1
 		fi
-		print "Found boot partition at: $boot_block"
+		print "Раздел boot определён как: $boot_block"
 	}
 	# if we already have boot block set then verify and use it
 	[ "$boot_block" ] && verify_block && return
@@ -93,7 +93,7 @@ find_boot() {
 
 # dump boot and unpack the android boot image
 dump_boot() {
-	print "Dumping & unpacking original boot image..."
+	print "Извлечение и перепаковка оригинального boot.img..."
 	cd "$tmp"
 	if $use_dd; then
 		dd if="$boot_block" of=boot.img
@@ -118,7 +118,7 @@ determine_ramdisk_format() {
 		fd37) rdformat=xz; decompress="xz -dc" ;;
 		*) abort "Unknown ramdisk compression format ($magicbytes)" ;;
 	esac
-	print "Detected ramdisk compression format: $rdformat"
+	print "Формат сжатия ramdisk: $rdformat"
 	command -v $decompress || abort "Unable to find archiver for $rdformat"
 
 	[ "$ramdisk_compression" ] && rdformat=$ramdisk_compression
@@ -147,7 +147,7 @@ dump_ramdisk() {
 # if the actual boot ramdisk exists inside a parent one, use that instead
 dump_embedded_ramdisk() {
 	[ -f "$ramdisk/sbin/ramdisk.cpio" ] || return
-	print "Found embedded boot ramdisk!"
+	print "Найден встроенный в boot ramdisk!"
 	mv "$ramdisk" "$ramdisk-root"
 	mkdir "$ramdisk"
 	cd "$ramdisk"
@@ -157,11 +157,11 @@ dump_embedded_ramdisk() {
 
 # execute all scripts in patch.d
 patch_ramdisk() {
-	print "Running ramdisk patching scripts..."
+	print "Запускаю скрипт ramdisk-patching..."
 	cd "$tmp"
 	find patch.d/ -type f | sort > patchfiles
 	while read -r patchfile; do
-		print "Executing: $(basename "$patchfile")"
+		print "Выполняется: $(basename "$patchfile")"
 		env="$tmp/patch.d-env" sh "$patchfile" ||
 			abort "Script failed: $(basename "$patchfile")"
 	done < patchfiles
@@ -170,7 +170,7 @@ patch_ramdisk() {
 # if we moved the parent ramdisk, we should rebuild the embedded one
 build_embedded_ramdisk() {
 	[ -d "$ramdisk-root" ] || return
-	print "Building new embedded boot ramdisk..."
+	print "Создаю новый встроенный в boot ramdisk..."
 	cd "$ramdisk"
 	find | cpio -o -H newc > "$ramdisk-root/sbin/ramdisk.cpio"
 	rm -rf "$ramdisk"
@@ -179,7 +179,7 @@ build_embedded_ramdisk() {
 
 # build the new ramdisk
 build_ramdisk() {
-	print "Building new ramdisk ($rdformat)..."
+	print "Создаю новый ramdisk ($rdformat)..."
 	cd "$ramdisk"
 	echo "Listing ramdisk contents by size:"
 	find -type f -exec du -a "{}" + | sort -n | awk '{ total += $1; print } END { print "Total size: "total }'
@@ -189,7 +189,7 @@ build_ramdisk() {
 # build the new boot image
 build_boot() {
 	cd "$tmp"
-	print "Building new boot image..."
+	print "Создаю новый boot.img..."
 	kernel=
 	rd=
 	dtb=
@@ -200,17 +200,17 @@ build_boot() {
 	do
 		if [ -s $image ]; then
 			kernel=$image
-			print "Found replacement kernel $image!"
+			print "Заменяемое ядро определено как $image!"
 			break
 		fi
 	done
 	if [ -s ramdisk-new ]; then
 		rd=ramdisk-new
-		print "Found replacement ramdisk image!"
+		print "Определена замена ramdisk image!"
 	fi
 	if [ -s dtb.img ]; then
 		dtb=dtb.img
-		print "Found replacement device tree image!"
+		print "Определена замена device tree image!"
 	fi
 	"$bin/bootimg" cvf boot-new.img "$split_img" \
 		${kernel:+--kernel "$kernel"} \
@@ -230,7 +230,7 @@ samsung_tag() {
 # sign the boot image with futility if it was a ChromeOS boot image
 sign_chromeos() {
 	[ -f "$split_img/boot.img-chromeos" ] || return
-	print "Signing ChromeOS boot image..."
+	print "Подпись ChromeOS boot.img..."
 	cd "$tmp"
 	mv boot-new.img boot-new-unsigned.img
 	echo " " > empty
@@ -248,7 +248,7 @@ sign_chromeos() {
 # backup old boot image
 backup_boot() {
 	[ "$boot_backup" ] || return
-	print "Backing up original boot image to $boot_backup..."
+	print "Сохраняю оригинальный boot.img в $boot_backup..."
 	cd "$tmp"
 	mkdir -p "$(dirname "$boot_backup")"
 	cp -f boot.img "$boot_backup"
@@ -256,7 +256,7 @@ backup_boot() {
 
 # verify that the boot image exists and can fit the partition
 verify_size() {
-	print "Verifying boot image size..."
+	print "Проверка размера boot.img..."
 	cd "$tmp"
 	[ -s boot-new.img ] || abort "New boot image not found!"
 	old_sz=$(wc -c < boot.img)
@@ -271,7 +271,7 @@ verify_size() {
 
 # write the new boot image to boot block
 write_boot() {
-	print "Writing new boot image to memory..."
+	print "Прошивка нового boot.img в устройство..."
 	cd "$tmp"
 	if $use_dd; then
 		dd if=boot-new.img of="$boot_block"

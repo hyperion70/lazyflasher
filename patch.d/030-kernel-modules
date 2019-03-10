@@ -3,17 +3,17 @@
 . "$env"
 
 [ "$(ls "$tmp/modules")" ] || {
-	print "No kernel modules found, skipping"
+	print "Не найдены модули ядра, пропуск..."
 	exit 0
 }
 
-print "Installing /lib/modules symlink"
+print "Установка /lib/modules symlink"
 mkdir -p lib
 chmod 0755 lib
 rm -rf lib/modules
 ln -s /system/lib/modules lib/modules
 
-print "Installing /sbin/modprobe symlink"
+print "Установка /sbin/modprobe symlink"
 mkdir -p sbin
 chmod 0755 sbin
 rm -rf sbin/modprobe
@@ -21,7 +21,7 @@ ln -s /system/xbin/busybox sbin/modprobe
 
 cd "$tmp"
 
-print "Gathering original module layout..."
+print "Определяю расположение модулей..."
 find /system/lib/modules -name "*.ko" -maxdepth 3 > modules.list
 > modules.layout
 while read -r kmod; do
@@ -29,13 +29,13 @@ while read -r kmod; do
 	echo "$kmod:$kmod_name" >> modules.layout
 done < modules.list
 
-print "Removing old kernel modules..."
+print "Удаляю старые модули ядра..."
 rm -rf /system/lib/modules
 
-print "Installing new kernel modules..."
+print "Установка новых модулей ядра..."
 cp -r modules /system/lib/
 
-print "Creating module symlinks..."
+print "Создание ссылок на новые модули..."
 
 # Create /system/lib/modules/*.ko symlinks for each module installed
 find /system/lib/modules -type f -name "*.ko" > modules.installed

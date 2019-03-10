@@ -62,13 +62,13 @@ umount() {
 
 print "#######################################"
 print "#           kernel flasher            #"
-print "#      by jcadduono, version 6.0      #"
-print "#   add your own intro message here!  #"
+print "#     by jcadduono, version 6.0.1     #"
+print "#                                     #"
 print "#######################################"
 
 # Unpack the installer
 [ "$zip" ] && {
-	print "Unpacking the installer..."
+	print " "
 	extract "$zip" "$tmp"
 }
 cd "$tmp"
@@ -80,7 +80,7 @@ cd "$tmp"
 		print "Warning: getprop not found! Skipping device check!"
 		return
 	fi
-	print "Checking device compatibility..."
+	print "Проверка совместимости устройства..."
 	match=0
 	ro_product_device=$(getprop ro.product.device)
 	ro_product_model=$(getprop ro.product.model)
@@ -99,10 +99,8 @@ mount /system
 
 setperm 0755 0755 "$bin"
 
-print "Running boot image patcher..."
+print "Запускаю перепаковщик boot.img..."
 sh boot-patcher.sh || abort
 
-print "Boot image patching complete"
-
 cleanup
-print "Done installing!"
+print "Установка завершена!"
